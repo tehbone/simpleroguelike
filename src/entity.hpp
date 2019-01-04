@@ -5,6 +5,8 @@
 #define ENTITY_HPP_
 #include <libtcod/libtcod.hpp>
 
+#include "map.hpp"
+
 class entity {
     char symbol;
     int x;
@@ -17,10 +19,12 @@ public:
     {
     }
 
-    void move(int dx, int dy)
+    void move(int dx, int dy, const map &m)
     {
-        x += dx;
-        y += dy;
+        if (!m.blocked(x + dx, y + dy)) {
+            x += dx;
+            y += dy;
+        }
     }
 
     void draw(TCODConsole &con)

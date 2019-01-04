@@ -6,12 +6,13 @@
 #include <libtcod/libtcod.hpp>
 
 #include "entity.hpp"
+#include "map.hpp"
 
 const int SCREEN_WIDTH = 80;
 const int SCREEN_HEIGHT = 50;
 const int LIMIT_FPS = 20;
 
-static bool handle_keys(entity &player)
+static bool handle_keys(entity &player, map &m)
 {
     int dx = 0;
     int dy = 0;
@@ -27,7 +28,7 @@ static bool handle_keys(entity &player)
     else if (TCODConsole::isKeyPressed(TCODK_RIGHT))
         dx = 1;
 
-    player.move(dx, dy);
+    player.move(dx, dy, m);
     return false;
 }
 
@@ -47,6 +48,7 @@ int main(int argc, char *argv[])
     std::list<std::reference_wrapper<entity>> entities;
     entity player(SCREEN_WIDTH/2, SCREEN_HEIGHT/2, '@', TCODColor::white);
     entity npc(SCREEN_WIDTH/2 - 5, SCREEN_HEIGHT/2, '@', TCODColor::yellow);
+    map level(80, 45);
     TCODConsole console(SCREEN_WIDTH, SCREEN_HEIGHT);
 
     entities.push_back(player);
@@ -58,6 +60,7 @@ int main(int argc, char *argv[])
         TCOD_RENDERER_SDL2);
     TCODSystem::setFps(0); // not real time
     while (!TCODConsole::isWindowClosed()) {
+        level.draw(console);
         for (entity &ent: entities)
             ent.draw(console);
 
@@ -68,7 +71,7 @@ int main(int argc, char *argv[])
         for (entity &ent: entities)
             ent.clear(console);
 
-        if (handle_keys(player))
+        if (handle_keys(player, level))
             break;
     }
 
