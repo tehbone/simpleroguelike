@@ -1,28 +1,33 @@
 /*
  * Copyright 2019 Tabari Alexander
  */
+#include <functional>
+#include <list>
 #include <libtcod/libtcod.hpp>
+
+#include "entity.hpp"
 
 const int SCREEN_WIDTH = 80;
 const int SCREEN_HEIGHT = 50;
 const int LIMIT_FPS = 20;
 
-int player_x = SCREEN_WIDTH / 2;
-int player_y = SCREEN_HEIGHT / 2;
-
-static bool handle_keys()
+static bool handle_keys(entity &player)
 {
+    int dx = 0;
+    int dy = 0;
     TCODConsole::waitForKeypress(true);
     if (TCODConsole::isKeyPressed(TCODK_ESCAPE))
         return true;
     if (TCODConsole::isKeyPressed(TCODK_UP))
-        player_y--;
+        dy = -1;
     else if (TCODConsole::isKeyPressed(TCODK_DOWN))
-        player_y++;
-    else if (TCODConsole::isKeyPressed(TCODK_LEFT))
-        player_x--;
+        dy = 1;
+    if (TCODConsole::isKeyPressed(TCODK_LEFT))
+        dx = -1;
     else if (TCODConsole::isKeyPressed(TCODK_RIGHT))
-        player_x++;
+        dx = 1;
+
+    player.move(dx, dy);
     return false;
 }
 
@@ -38,7 +43,14 @@ int main(int argc, char *argv[])
     // "Use" the arguments.
     (void)argc;
     (void)argv;
+
+    std::list<std::reference_wrapper<entity>> entities;
+    entity player(SCREEN_WIDTH/2, SCREEN_HEIGHT/2, '@', TCODColor::white);
+    entity npc(SCREEN_WIDTH/2 - 5, SCREEN_HEIGHT/2, '@', TCODColor::yellow);
     TCODConsole console(SCREEN_WIDTH, SCREEN_HEIGHT);
+
+    entities.push_back(player);
+    entities.push_back(npc);
 
     TCODConsole::setCustomFont("arial10x10.png",
         TCOD_FONT_TYPE_GREYSCALE | TCOD_FONT_LAYOUT_TCOD);
@@ -46,14 +58,17 @@ int main(int argc, char *argv[])
         TCOD_RENDERER_SDL2);
     TCODSystem::setFps(0); // not real time
     while (!TCODConsole::isWindowClosed()) {
-        console.setDefaultForeground(TCODColor::white);
-        console.putChar(player_x, player_y, '@', TCOD_BKGND_NONE);
+        for (entity &ent: entities)
+            ent.draw(console);
+
         TCODConsole::blit(&console, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT,
             TCODConsole::root, 0, 0);
         TCODConsole::flush();
         // Clear the player's old position
-        console.putChar(player_x, player_y, ' ', TCOD_BKGND_NONE);
-        if (handle_keys())
+        for (entity &ent: entities)
+            ent.clear(console);
+
+        if (handle_keys(player))
             break;
     }
 
