@@ -38,6 +38,7 @@ int main(int argc, char *argv[])
     // "Use" the arguments.
     (void)argc;
     (void)argv;
+    TCODConsole console(SCREEN_WIDTH, SCREEN_HEIGHT);
 
     TCODConsole::setCustomFont("arial10x10.png",
         TCOD_FONT_TYPE_GREYSCALE | TCOD_FONT_LAYOUT_TCOD);
@@ -45,11 +46,13 @@ int main(int argc, char *argv[])
         TCOD_RENDERER_SDL2);
     TCODSystem::setFps(0); // not real time
     while (!TCODConsole::isWindowClosed()) {
-        TCODConsole::root->setDefaultForeground(TCODColor::white);
-        TCODConsole::root->putChar(player_x, player_y, '@', TCOD_BKGND_NONE);
+        console.setDefaultForeground(TCODColor::white);
+        console.putChar(player_x, player_y, '@', TCOD_BKGND_NONE);
+        TCODConsole::blit(&console, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT,
+            TCODConsole::root, 0, 0);
         TCODConsole::flush();
         // Clear the player's old position
-        TCODConsole::root->putChar(player_x, player_y, ' ', TCOD_BKGND_NONE);
+        console.putChar(player_x, player_y, ' ', TCOD_BKGND_NONE);
         if (handle_keys())
             break;
     }
