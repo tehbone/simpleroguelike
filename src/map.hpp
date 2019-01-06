@@ -14,24 +14,29 @@ class map {
         std::optional<bool> block_sight;
     };
 
-    const TCODColor WALL_COLOR;
-    const TCODColor FLOOR_COLOR;
-    const int width;
-    const int height;
+    TCODColor WALL_COLOR;
+    TCODColor FLOOR_COLOR;
+    int width;
+    int height;
 
     std::vector<map_tile> tiles;
+
+    void create_room(int x, int y, int width, int height);
+    void create_horizontal_tunnel(int x1, int x2, int y);
+    void create_vertical_tunnel(int x, int y1, int y2);
 
 public:
     map(int width, int height)
         : width(width), height(height), WALL_COLOR(0, 0, 100),
           FLOOR_COLOR(50, 50, 150)
     {
+        const map_tile model_tile = {
+            .blocked = true,
+            .block_sight = true,
+        };
+
         tiles.reserve(height * width);
-        // this is not the right location, but whatever.
-        tiles[22*width + 30].blocked = true;
-        tiles[22*width + 30].block_sight = true;
-        tiles[22*width + 50].blocked = true;
-        tiles[22*width + 50].block_sight= true;
+        tiles.assign(height * width, model_tile);
     }
 
     bool blocked(int x, int y) const
@@ -48,5 +53,7 @@ public:
                 else
                     console.setCharBackground(i, j, FLOOR_COLOR, TCOD_BKGND_SET);
     }
+
+    static map generate(int width, int height);
 };
 #endif /* MAP_HPP_ */

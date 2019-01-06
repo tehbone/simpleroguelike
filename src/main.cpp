@@ -16,6 +16,11 @@ static bool handle_keys(entity &player, map &m)
 {
     int dx = 0;
     int dy = 0;
+    /*
+     * I've noticed that isKeyPressed handles both the up and down events.
+     * This interface is deprecated anyway so the change to no longer use the
+     * deprecated interface should fix it.
+     */
     TCODConsole::waitForKeypress(true);
     if (TCODConsole::isKeyPressed(TCODK_ESCAPE))
         return true;
@@ -46,9 +51,9 @@ int main(int argc, char *argv[])
     (void)argv;
 
     std::list<std::reference_wrapper<entity>> entities;
-    entity player(SCREEN_WIDTH/2, SCREEN_HEIGHT/2, '@', TCODColor::white);
+    entity player(25, 23, '@', TCODColor::white);
     entity npc(SCREEN_WIDTH/2 - 5, SCREEN_HEIGHT/2, '@', TCODColor::yellow);
-    map level(80, 45);
+    map level = map::generate(80, 45);
     TCODConsole console(SCREEN_WIDTH, SCREEN_HEIGHT);
 
     entities.push_back(player);
